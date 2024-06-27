@@ -1,0 +1,185 @@
+{% extends "bootstrap/base.html" %}
+
+{% block content %}
+
+<style>
+	.form-control{
+		margin-bottom: 8px;
+	}
+	.form1{
+		margin-bottom:20px;
+
+	}
+	span{
+		font-size: 20px;
+	}
+
+	.lb{
+		font-size: 22px;
+	}
+	.s1{
+		color:#0000FF;
+		font-weight: bold;
+		font-size: 22px;
+	}
+	h3.titulo{
+		font-weight: bold;
+		color: #fff;
+		font-size: 40px;
+		text-shadow: 2px 2px #000000;
+	}
+	div.sub{
+		font-weight: bold;
+		color:fff;
+		font-size: 25px;
+	}
+	h2{
+		line-height: 0;
+		font-weight: bold;
+		color: #fff;
+		font-size: 25px;
+	}
+	.lime{
+		padding-right: 60px;
+   		margin-left: 60px;
+   		height: auto;
+	}
+	.hl{
+		font-size: 25px;
+	}
+	.slider-wrapper {
+  		width: 150px;
+		display: flex;
+		float: left;	 
+		margin-top: 5px; 
+		margin-left: 5px;
+
+	}
+	.out{
+		font-weight: bold;
+		margin-left: 10px;
+		margin-top: -4px;
+		margin-right: 8px;
+		float: left;
+	}
+
+	.info-words{
+		float: left;
+		margin-top: 5px;
+		font-size: 15px;
+	}
+
+</style>
+
+
+<div class="container">
+	<div class="jumbotron text-center" style="background-color: #0083F7;">
+		<h3 class="titulo">Twitter COVID Explainer</h3></br> <h2>Understanding a black-box model with LIME</h2>
+		<!--<p class="sub">Understanding the classifier</p>   -->
+	</div>
+</div>
+
+<div class="container">
+	<form method="POST" class=form1 action="{{ url_for('analyse')}}" id="myForm">
+		
+
+		<label >Enter with tweet message about COVID-19 below</label>
+		<textarea class="form-control" rows="4" cols="2" name="twitt" required></textarea>
+
+		<label class="info-words">Number of words to explain</label> 
+
+
+		<input type="submit" onclick="myAnalyser()" value="Explain" class="btn btn-success">
+			<!-- Botão para acionar about -->
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalExemplo">
+			About
+  		</button>
+
+	   <!-- range_value - é o valor devolvido do backend que o usuário inseriu-->
+		<div class="slider-wrapper">	
+			<input type="range" name="range_words"	value="{{range_value}}" min="1" max="20" oninput="this.nextElementSibling.value = this.value">
+			<output class="out"> {{range_value}}</output></output>
+		</div>
+
+
+
+  <!-- Modal - About Button-->
+<div class="modal fade" id="modalExemplo" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h5 class="modal-title" id="exampleModalLabel">App Info</h5>
+		  <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+			<span aria-hidden="true">&times;</span>
+		  </button>
+		</div>
+		<div class="modal-body">
+			Web application in python in the area of NLP (Natural Language Processing) that classifies and explains if a tweet (written in English) about COVID-19 has a positive, negative or neutral sentiment using a black box model SVM (Support Vector Machine) with 79% accuracy. After inserting the tweet a cleanup of useless characters is done, then the classification and finally the LIME (Local Interpretable Model-Agnostic Explanations) framework explains the model prediction with the most relevant words for the classification represented by weights and graphs. The application allows the user to define the number of words to be explained by LIME and to better understand the SVM predictions.
+		</div>
+		<div class="modal-footer">
+		  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		</div>
+	  </div>
+	</div>
+  </div>
+
+
+
+	</form>
+</div>
+
+<!-- div para exibir o texto digitado-->
+<div class="container">
+	<div class="card">
+		<div>
+			<span><b class="lb">Twitter Message: </b></span><span>{{twitter}}</span></br></br>
+			<span><b class="lb">SVM Classification: </b><span><span class="s1">{{prediction}} </span>
+		</div>
+
+	</div>
+
+</div>
+
+    {% if lime %}
+      <h3 class="container" align="center">LIME explanation for SVM classification </h3>
+        <div class="lime">
+            {{ lime|safe}}
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+
+<!-- Scripts starts here -->
+{% block scripts %}
+
+{{ super() }}
+
+ <script src="javascript" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(function () {
+                $.get("lime.html", function (data) {
+                    $("#appendToThis").append(data);
+                });
+            });
+        </script>
+
+
+<script>
+	function myAnalyser() {
+		document.querySelector('.main div').style.display = 'none';
+	//Hide the main division
+	document.querySelector('.main').classList.add('spinner-1');
+	// Server request
+	setTimeout(() => {
+		document.querySelector('.main').classList.remove('spinner-1');
+	//Remove the animation
+	document.querySelector('.main div').style.display = 'block';
+	//Show the main division
+	},5000);//Number of seconds to last
+}
+</script>
+
+<!-- Prevent it from being overwritten -->
+
+{% endblock %}
